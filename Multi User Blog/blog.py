@@ -314,7 +314,7 @@ class Welcome(BlogHandler):
             return self.redirect('/blog/signup')
 
 app = webapp2.WSGIApplication([('/', BlogFront),
-                               ('/blog/editpost', EditPost),
+                               ('/blog/([0-9]+)/edit', EditPost),
                                ('/blog/signup', Unit2Signup),
                                ('/blog/welcome', Welcome),
                                ('/blog/?', BlogFront),
