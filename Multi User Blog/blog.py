@@ -129,7 +129,7 @@ class Post(db.Model):
 class BlogFront(BlogHandler):
     def get(self):
         posts = greetings = Post.all().order('-created')
-        self.render('front.html', posts=posts)
+        return self.render('front.html', posts=posts)
 
 class PostPage(BlogHandler):
     def get(self, post_id):
@@ -137,21 +137,23 @@ class PostPage(BlogHandler):
         post = db.get(key)
 
         if not post:
-            self.error(404)
-            return
+            return self.error(404)
+            
 
         self.render("permalink.html", post=post)
 
 class NewPost(BlogHandler):
     def get(self):
         if self.user:
-            self.render("newpost.html")
+           return self.render("newpost.html")
         else:
-            self.redirect("/login")
+           return self.redirect("/login")
+            
 
     def post(self):
         if not self.user:
-            self.redirect('/blog')
+           return self.redirect('/blog')
+            
 
         subject = self.request.get('subject')
         content = self.request.get('content')
@@ -159,11 +161,50 @@ class NewPost(BlogHandler):
         if subject and content:
             p = Post(parent=blog_key(), subject=subject, content=content)
             p.put()
-            self.redirect('/blog/%s' % str(p.key().id()))
+            return self.redirect('/blog/%s' % str(p.key().id()))
         else:
             error = "subject and content, please!"
-            self.render("newpost.html", subject=subject, content=content, error=error)
+            return self.render("newpost.html", subject=subject, content=content, error=error)
 
+class EditPost(BlogHandler):
+    def get(self, post_id):
+        post = Post.by_id(int(post_id))
+
+        if self.user and post.authoer.get_id() == self.user.get_id():
+            post.content = post.content.replace('<br>', '\n')
+            return self.render("/blog/editpost.html", post=post)
+        else:
+            self.render("/base.html", error="Not allowed to edit post.")
+
+    def post(self, post_id):
+        post = Post.by_id(int(post_id))
+        post_title = self.request.get("post_title")
+        post_content = self.request.get("post_content")
+        param_list = dict(post=post, post_title=post_title, post_content=post_content)
+
+        any_error = False
+
+        if not post_title:
+            param_list['title_error'] = "Title is missing"
+            any_error = True
+        if not post_content:
+            param_list['content_error'] = "Content is missing"
+            any_error = True
+
+        if any_error:
+            return self.render("blog/editpost.html", **param_list)
+        else:
+            p = Post.update_post(int(post_id), post_title, post_content)
+            return self.redirect('/blog/%s' % str(p.get_id()))
+
+class DeletePost(BlogHandler):
+    def get(self, post_id):
+        post = Post.by_id(int(post_id))
+        if self.user and post.author.get_id() == self.user.get_id():
+            Post.delete_post(post_id)
+            return self.redirect('/blog')
+        else:
+            self.render("/base.html", error="Not allowed to delet post.")
 
 ####Username and password hashing
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -208,9 +249,10 @@ class Signup(BlogHandler):
             have_error = True
 
         if have_error:
-            self.render('signup-form.html', **params)
+            return self.render('signup-form.html', **params)
         else:
-            self.done()
+            return self.done()
+            
 
     def done(self, *a, **kw):
         raise NotImplementedError
@@ -218,6 +260,7 @@ class Signup(BlogHandler):
 class Unit2Signup(Signup):
     def done(self):
         self.redirect('/blog/welcome?username=' + self.username)
+        return
 
 class Register(Signup):
     def done(self):
@@ -225,13 +268,14 @@ class Register(Signup):
         u = User.by_name(self.username)
         if u:
             msg = 'That user already exists.'
-            self.render('signup-form.html', error_username=msg)
+            return self.render('signup-form.html', error_username=msg)
         else:
             u = User.register(self.username, self.password, self.email)
             u.put()
 
             self.login(u)
-            self.redirect('/blog')
+            return self.redirect('/blog')
+            
 
 class Login(BlogHandler):
     def get(self):
@@ -244,32 +288,33 @@ class Login(BlogHandler):
         u = User.login(username, password)
         if u:
             self.login(u)
-            self.redirect('/blog')
+            return self.redirect('/blog')
         else:
             msg = 'Invalid login'
-            self.render('login-form.html', error=msg)
+            return self.render('login-form.html', error=msg)
 
 class Logout(BlogHandler):
     def get(self):
         self.logout()
-        self.redirect('/blog')
+        return self.redirect('/blog')
 
 class Unit3Welcome(BlogHandler):
     def get(self):
         if self.user:
-            self.render('welcome.html', username=self.user.name)
+            return self.render('welcome.html', username=self.user.name)
         else:
-            self.redirect('/signup')
+            return self.redirect('/signup')
 
 class Welcome(BlogHandler):
     def get(self):
         username = self.request.get('username')
         if valid_username(username):
-            self.render('welcome.html', username=username)
+            return self.render('welcome.html', username=username)
         else:
-            self.redirect('/blog/signup')
+            return self.redirect('/blog/signup')
 
 app = webapp2.WSGIApplication([('/', BlogFront),
+                               ('/blog/editpost', EditPost),
                                ('/blog/signup', Unit2Signup),
                                ('/blog/welcome', Welcome),
                                ('/blog/?', BlogFront),
