@@ -168,16 +168,16 @@ class NewPost(BlogHandler):
 
 class EditPost(BlogHandler):
     def get(self, post_id):
-        post = Post.by_id(int(post_id))
+        post = Post.get_by_id(int(post_id))
 
-        if self.user and post.authoer.get_id() == self.user.get_id():
+        if self.user and post.author.get_id() == self.user.get_id():
             post.content = post.content.replace('<br>', '\n')
             return self.render("/blog/editpost.html", post=post)
         else:
             self.render("/base.html", error="Not allowed to edit post.")
 
     def post(self, post_id):
-        post = Post.by_id(int(post_id))
+        post = Post.get_by_id(int(post_id))
         post_title = self.request.get("post_title")
         post_content = self.request.get("post_content")
         param_list = dict(post=post, post_title=post_title, post_content=post_content)
@@ -314,7 +314,7 @@ class Welcome(BlogHandler):
             return self.redirect('/blog/signup')
 
 app = webapp2.WSGIApplication([('/', BlogFront),
-                               ('/blog/([0-9]+)/edit', EditPost),
+                               ('/blog/([0-9]+)/editpost', EditPost),
                                ('/blog/signup', Unit2Signup),
                                ('/blog/welcome', Welcome),
                                ('/blog/?', BlogFront),
