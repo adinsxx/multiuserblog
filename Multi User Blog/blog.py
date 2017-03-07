@@ -170,11 +170,11 @@ class EditPost(BlogHandler):
     def get(self, post_id):
         post = Post.get_by_id(int(post_id))
 
-        if self.user and post.author.get_id() == self.user.get_id():
+        if self.user and Post.get_by_id() == self.user.get_by_id():
             post.content = post.content.replace('<br>', '\n')
-            return self.render("/blog/editpost.html", post=post)
+            return self.render("editpost.html", post=post)
         else:
-            self.render("/base.html", error="Not allowed to edit post.")
+            self.render("login-form.html", error="Not allowed to edit post.")
 
     def post(self, post_id):
         post = Post.get_by_id(int(post_id))
@@ -192,19 +192,18 @@ class EditPost(BlogHandler):
             any_error = True
 
         if any_error:
-            return self.render("blog/editpost.html", **param_list)
+            return self.render("editpost.html", **param_list)
         else:
-            p = Post.update_post(int(post_id), post_title, post_content)
             return self.redirect('/blog/%s' % str(p.get_id()))
 
-class DeletePost(BlogHandler):
-    def get(self, post_id):
-        post = Post.by_id(int(post_id))
-        if self.user and post.author.get_id() == self.user.get_id():
-            Post.delete_post(post_id)
-            return self.redirect('/blog')
-        else:
-            self.render("/base.html", error="Not allowed to delet post.")
+#class DeletePost(BlogHandler):
+  #  def get(self, post_id):
+   #     post = Post.by_id(int(post_id))
+    #    if self.user and post.author.get_id() == self.user.get_id():
+     #       Post.delete_post(post_id)
+      #      return self.redirect('/blog')
+       # else:
+        #    self.render("base.html", error="Not allowed to delet post.")
 
 ####Username and password hashing
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
