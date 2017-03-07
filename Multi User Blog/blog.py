@@ -168,33 +168,27 @@ class NewPost(BlogHandler):
 
 class EditPost(BlogHandler):
     def get(self, post_id):
-        post = Post.get_by_id(int(post_id))
+        if self.user:
+            self.render("editpost.html")
+	else:
+	    self.redirect("/login")
 
-        if self.user and Post.get_by_id() == self.user.get_by_id():
-            post.content = post.content.replace('<br>', '\n')
-            return self.render("editpost.html", post=post)
-        else:
-            self.render("login-form.html", error="Not allowed to edit post.")
+        def post(self, post_id):
+           key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+           post = db.get(key)
+           if not self.user:
+             self.redirect('/blog')
 
-    def post(self, post_id):
-        post = Post.get_by_id(int(post_id))
-        post_title = self.request.get("post_title")
-        post_content = self.request.get("post_content")
-        param_list = dict(post=post, post_title=post_title, post_content=post_content)
+           post.subject = self.request.get('subject')
+           post.content = self.request.get('content')
 
-        any_error = False
-
-        if not post_title:
-            param_list['title_error'] = "Title is missing"
-            any_error = True
-        if not post_content:
-            param_list['content_error'] = "Content is missing"
-            any_error = True
-
-        if any_error:
-            return self.render("editpost.html", **param_list)
-        else:
-            return self.redirect('/blog/%s' % str(p.get_id()))
+           if post.subject and post.content:
+              p = Post(parent=blog_key(), subject=subject, content=content)
+              p.put()
+              self.redirect('/blog/%s' % str(p.key().id()))
+           else:
+            error = "subject and content, please!"
+            return self.render("editpost.html", subject=post.subject, content=post.content, error=error)
 
 #class DeletePost(BlogHandler):
   #  def get(self, post_id):
