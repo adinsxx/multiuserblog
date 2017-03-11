@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Comments for "{{post.subject}}"</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="separator">
+        </div>
+    </div>
+    {% for c in comments %}
+        <div class="row">
+            <div class="col-sm-10">                            
+                <div class="well well-sm">
+                    <strong>{{c.username}}: </strong> {{c.content}}
+                </div>
+            </div>
+
+            {% if user.name == c.username %}
+                <div class="col-sm-2 well well-sm">
+                    <a href="/editcomment?comment_id={{c.key().id()}}&post_id={{post.key().id()}}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+                    &nbsp;
+                    <a class="error" href="/deletecomment?comment_id={{c.key().id()}}&post_id={{post.key().id()}}"><span class="glyphicon glyphicon-edit"></span> Delete</a>
+                </div>
+            {% endif %}
+
+                
+        </div>
+    {% endfor %}
+{% endblock %}

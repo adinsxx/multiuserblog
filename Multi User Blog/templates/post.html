@@ -1,15 +1,50 @@
-<div class="post">
-  <div class="post-heading">
-    <div class="post-title">
-      {{p.subject}}
+<div class="post row">
+    <div class="post-heading">
+        <div class="post-title">
+            <h4>Subject:
+            <strong id="post_page_subject"><a href="/post?post_id={{p.key().id()}}">{{p.subject}}</a></strong></h4>
+        </div>
+    </div><!--post-heading-->
+
+    <div class="post-content well well-sm big">
+        {{p._render_text | safe}}
     </div>
 
-    <div class="post-date">
-      {{p.created.strftime("%b %d, %Y")}}
+    <div class="row">
+    <div class="small">
+        {% if user %}
+        <div class="edit-delete col-sm-6">
+            <form class="lefty" action="edit" method="get"> 
+                <input type="hidden" name="post_id" value="{{post_id}}">
+                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+            </form>
+            <form class="lefty" id="second" action="delete" method="get">
+                <input type="hidden" name="post_id" value="{{post_id}}">
+                <button class="btn btn-danger" type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span> Delete</button> 
+            </form>
+        </div>
+        <div class="post-date col-sm-6">{{p.created.strftime("%B %d, %Y at %I:%M %p UTC by ")}}<strong>{{p.creator_name}}</strong></div>
+        {% else %}
+            <div class=col-sm-6>
+                <a href="/like?post_id={{p.key().id()}}"><span class="glyphicon glyphicon-heart"></span> {{p.numLikes}}&nbsp;&nbsp;</a>
+                <!--<a href="/newcomment?post_id={{p.key().id()}}"><span class="glyphicon glyphicon-comment"></span>Add Comment</a>-->
+                <a id="view-comments" href="/comments?post_id={{p.key().id()}}"><span class="glyphicon glyphicon-comment"></span> View({{p.numComments}})</a>
+            </div>
+            <div class="post-date col-sm-6">{{p.created.strftime("%B %d, %Y at %I:%M %p UTC by ")}}<strong>{{p.creator_name}}</strong></div>
+            <div id="comment-form" class="row comment-box">
+                <form method="get" action="newcomment">
+                    <div class="col-sm-10">
+                        <div class="form-group">
+                            <input type="text" name="comment" class="form-control" value="{{comment}}" placeholder="Enter Comment">
+                        </div>
+                        <input type="hidden" name="post_id" value="{{p.key().id()}}">
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="submit" class="btn btn-primary">Submit Comment!</button>
+                    </div>
+                    </form>
+                </div>
+        {% endif %}
     </div>
-  </div>
-
-  <div class="post-content">
-    {{p._render_text | safe}}
-  </div>
-</div>
+    </div>
+</div><!--post row-->

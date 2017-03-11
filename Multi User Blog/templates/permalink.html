@@ -1,5 +1,22 @@
 {% extends "base.html" %}
-
 {% block content %}
+<div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Subject: "{{post.subject}}"</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="separator">
+        </div>
+    </div>
   {{post.render() | safe}}
+  <hr>
+<!--This script removes the view comments button, and post linke inside of "myposts"-->
+  <script>
+      x = document.getElementById("comment-form");
+      x.innerHTML="";
+      x = document.getElementById("post_page_subject")
+      x.innerHTML="{{post.subject}}";
+  </script>
 {% endblock %}

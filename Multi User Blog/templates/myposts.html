@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Posts Submitted By Me</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="separator">
+        </div>
+    </div>
+    <div class="logged-in-name">
+        {{message}}
+    </div>
+    {% for post in posts %}
+        {{ post.render(user=user, post_id=post.key().id()) | safe }}
+        <hr class="post-separator">
+    {% endfor %}
+{% endblock %}

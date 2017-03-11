@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Blog Front Page</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="separator">
+        </div>
+    </div>
+    {% for p in posts %}
+        {{ p.render() | safe }}
+        <hr>
+    {% endfor %}
+{% endblock %}
