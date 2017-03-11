@@ -1,11 +1,4 @@
-# Title: Multi-User-Blog
-# Author: Bilal Sattar
-# Description: This is the backend for the Udacity's
-# Multi-user blog project.
-# Date: 1/5/2017
-
-
-# ----------------------------Imports---------------------------------------
+# Imports
 import os
 import re
 import time
@@ -17,14 +10,14 @@ import hmac
 import hashlib
 from google.appengine.ext import db
 
-# -----------------------------Variables--------------------------------------
+
 secret = "thisIsASecret"
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
 
 
-# -----------------------------Functions--------------------------------------
+# Functions
 
 
 def make_hash(original):
@@ -99,7 +92,7 @@ def comments_key(group='default'):
     return db.Key.from_path('comments', group)
 
 
-# ----------------------Base Class----------------------------------
+# Base Class
 class BaseHandler(webapp2.RequestHandler):
     """
         This Base class has necessary methods for all other handlers and
@@ -256,7 +249,7 @@ class Comment(db.Model):
         return cls.get_by_id(post_id, parent=posts_key())
 
 
-# -------------------------------HANDLERS-------------------------------------
+# Handlers
 class TestHandler(BaseHandler):
     """
         This handler is for development and debugging purposes.
@@ -646,7 +639,7 @@ class EditComment(BaseHandler):
         time.sleep(1)
         return self.redirect("/comments?post_id="+post_id)
 
-# -------------------------------Handler Mappings------------------------------
+# Handler Mappings
 app = webapp2.WSGIApplication([
     ('/', FrontPage),
     ('/test', TestHandler),
